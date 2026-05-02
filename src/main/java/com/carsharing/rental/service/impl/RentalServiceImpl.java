@@ -21,6 +21,8 @@ import com.carsharing.rental.repository.RentalRepository;
 import com.carsharing.rental.service.RentalService;
 import com.carsharing.user.entity.User;
 import com.carsharing.user.service.UserService;
+import com.carsharing.rental.entity.RentalPhotoType;
+import com.carsharing.rental.repository.RentalPhotoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +41,7 @@ public class RentalServiceImpl implements RentalService {
     private final UserService userService;
     private final DriverLicenseRepository driverLicenseRepository;
     private final BonusTransactionRepository bonusTransactionRepository;
+    private final RentalPhotoRepository rentalPhotoRepository;
 
     @Override
     public RentalPreviewResponse previewRental(RentalPreviewRequest request) {
@@ -160,6 +163,24 @@ public class RentalServiceImpl implements RentalService {
 
         if (rental.getStatus() != RentalStatus.ACTIVE) {
             throw new BadRequestException("Завершити можна тільки активну оренду");
+        }
+
+        boolean hasBeforePhoto = rentalPhotoRepository.existsByRentalAndPhotoType(
+                rental,
+                RentalPhotoType.BEFORE
+        );
+
+        if (!hasBeforePhoto) {
+            throw new BadRequestException("Перед початком користування авто потрібно завантажити фото до оренди");
+        }
+
+        boolean hasAfterPhoto = rentalPhotoRepository.existsByRentalAndPhotoType(
+                rental,
+                RentalPhotoType.AFTER
+        );
+
+        if (!hasAfterPhoto) {
+            throw new BadRequestException("Перед завершенням оренди потрібно завантажити фото після");
         }
 
         rental.setStatus(RentalStatus.FINISHED);

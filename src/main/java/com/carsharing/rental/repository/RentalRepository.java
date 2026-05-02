@@ -15,4 +15,6 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
     boolean existsByUserAndStatus(User user, RentalStatus status);
 
     Optional<Rental> findByIdAndUser(Long id, User user);
+
+    List<Rental> findByStatus(RentalStatus status);
 }
