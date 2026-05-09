@@ -107,14 +107,14 @@ public class RentalServiceImpl implements RentalService {
                 .totalPrice(finalPrice)
                 .bonusUsed(request.getBonusUsed())
                 .discountAmount(BigDecimal.ZERO)
-                .status(RentalStatus.ACTIVE)
+                .status(RentalStatus.BOOKED)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
 
         rentalRepository.save(rental);
 
-        car.setStatus(CarStatus.RENTED);
+        car.setStatus(CarStatus.RESERVED);
         car.setUpdatedAt(LocalDateTime.now());
         carRepository.save(car);
 

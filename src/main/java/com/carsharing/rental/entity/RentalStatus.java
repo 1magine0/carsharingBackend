@@ -4,5 +4,6 @@ public enum RentalStatus {
     BOOKED,
     ACTIVE,
     FINISHED,
-    CANCELED
+    CANCELED,
+    EXPIRED
 }
