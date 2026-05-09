@@ -1,9 +1,6 @@
 package com.carsharing.rental.service;
 
-import com.carsharing.rental.dto.CreateRentalRequest;
-import com.carsharing.rental.dto.RentalPreviewRequest;
-import com.carsharing.rental.dto.RentalPreviewResponse;
-import com.carsharing.rental.dto.RentalResponse;
+import com.carsharing.rental.dto.*;
 
 import java.util.List;
 
@@ -18,4 +15,6 @@ public interface RentalService {
     RentalResponse getCurrentUserActiveRental();
 
     void finishRental(Long rentalId);
+
+    UnlockCarResponse unlockCar(Long rentalId);
 }

@@ -11,10 +11,9 @@ import com.carsharing.common.exception.NotFoundException;
 import com.carsharing.license.entity.DriverLicense;
 import com.carsharing.license.entity.LicenseStatus;
 import com.carsharing.license.repository.DriverLicenseRepository;
-import com.carsharing.rental.dto.CreateRentalRequest;
-import com.carsharing.rental.dto.RentalPreviewRequest;
-import com.carsharing.rental.dto.RentalPreviewResponse;
-import com.carsharing.rental.dto.RentalResponse;
+import com.carsharing.payment.entity.PaymentStatus;
+import com.carsharing.payment.repository.PaymentRepository;
+import com.carsharing.rental.dto.*;
 import com.carsharing.rental.entity.Rental;
 import com.carsharing.rental.entity.RentalStatus;
 import com.carsharing.rental.repository.RentalRepository;
@@ -42,6 +41,7 @@ public class RentalServiceImpl implements RentalService {
     private final DriverLicenseRepository driverLicenseRepository;
     private final BonusTransactionRepository bonusTransactionRepository;
     private final RentalPhotoRepository rentalPhotoRepository;
+    private final PaymentRepository paymentRepository;
 
     @Override
     public RentalPreviewResponse previewRental(RentalPreviewRequest request) {
@@ -191,6 +191,55 @@ public class RentalServiceImpl implements RentalService {
         car.setStatus(CarStatus.AVAILABLE);
         car.setUpdatedAt(LocalDateTime.now());
         carRepository.save(car);
+    }
+
+    @Override
+    public UnlockCarResponse unlockCar(Long rentalId) {
+        User currentUser = userService.getCurrentUserEntity();
+
+        Rental rental = rentalRepository.findByIdAndUser(rentalId, currentUser)
+                .orElseThrow(() -> new NotFoundException("Оренду не знайдено"));
+
+        if (rental.getStatus() != RentalStatus.ACTIVE) {
+            throw new BadRequestException("Розблокувати авто можна тільки для активної оренди");
+        }
+
+        validateApprovedLicense(currentUser);
+
+        boolean hasPaidPayment = paymentRepository
+                .findFirstByRentalAndStatusOrderByCreatedAtDesc(rental, PaymentStatus.PAID)
+                .isPresent();
+
+        if (!hasPaidPayment) {
+            throw new BadRequestException("Оренда ще не оплачена");
+        }
+
+        boolean hasBeforePhoto = rentalPhotoRepository.existsByRentalAndPhotoType(
+                rental,
+                RentalPhotoType.BEFORE
+        );
+
+        if (!hasBeforePhoto) {
+            throw new BadRequestException("Перед розблокуванням авто потрібно завантажити фото до оренди");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        if (now.isBefore(rental.getStartTime())) {
+            throw new BadRequestException("Оренда ще не почалася");
+        }
+
+        if (now.isAfter(rental.getEndTime())) {
+            throw new BadRequestException("Час оренди вже завершився");
+        }
+
+        return UnlockCarResponse.builder()
+                .unlockAllowed(true)
+                .rentalId(rental.getId())
+                .carId(rental.getCar().getId())
+                .carName(rental.getCar().getBrand() + " " + rental.getCar().getModel())
+                .message("Авто розблоковано. NFC-перевірку успішно пройдено.")
+                .build();
     }
 
     private void validateRentalPeriod(LocalDateTime startTime, LocalDateTime endTime) {

@@ -56,7 +56,14 @@ public class PaymentController {
             @RequestParam String data,
             @RequestParam String signature
     ) {
+        System.out.println("===== LIQPAY CALLBACK RECEIVED =====");
+        System.out.println("data = " + data);
+        System.out.println("signature = " + signature);
+
         paymentService.handleLiqPayCallback(data, signature);
+
+        System.out.println("===== LIQPAY CALLBACK PROCESSED =====");
+
         return "OK";
     }
 }

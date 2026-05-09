@@ -1,10 +1,7 @@
 package com.carsharing.rental.controller;
 
 import com.carsharing.common.response.ApiResponse;
-import com.carsharing.rental.dto.CreateRentalRequest;
-import com.carsharing.rental.dto.RentalPreviewRequest;
-import com.carsharing.rental.dto.RentalPreviewResponse;
-import com.carsharing.rental.dto.RentalResponse;
+import com.carsharing.rental.dto.*;
 import com.carsharing.rental.service.RentalService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +32,17 @@ public class RentalController {
         return ApiResponse.<Void>builder()
                 .success(true)
                 .message("Оренду створено успішно")
+                .build();
+    }
+
+    @PostMapping("/{id}/unlock")
+    public ApiResponse<UnlockCarResponse> unlockCar(@PathVariable Long id) {
+        UnlockCarResponse response = rentalService.unlockCar(id);
+
+        return ApiResponse.<UnlockCarResponse>builder()
+                .success(true)
+                .message("Авто розблоковано")
+                .data(response)
                 .build();
     }
 

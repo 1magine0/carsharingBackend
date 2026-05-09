@@ -21,4 +21,5 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     );
 
     Optional<Payment> findByIdAndUser(Long id, User user);
+
 }

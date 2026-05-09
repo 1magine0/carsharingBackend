@@ -188,10 +188,14 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private void markPaymentPaidAndActivateRental(Payment payment, String providerPaymentId) {
+        if (payment.getStatus() == PaymentStatus.PAID) {
+            return;
+        }
+
         Rental rental = payment.getRental();
 
-        if (rental.getStatus() != RentalStatus.BOOKED) {
-            throw new BadRequestException("Активувати можна тільки заброньовану оренду");
+        if (rental.getStatus() != RentalStatus.BOOKED && rental.getStatus() != RentalStatus.ACTIVE) {
+            throw new BadRequestException("Неможливо активувати оренду зі статусом " + rental.getStatus());
         }
 
         payment.setStatus(PaymentStatus.PAID);
