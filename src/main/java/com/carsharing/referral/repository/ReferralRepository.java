@@ -10,7 +10,10 @@ public interface ReferralRepository extends JpaRepository<Referral, Long> {
 
     Optional<Referral> findByReferredUser(User referredUser);
 
-    Optional<Referral> findByReferrerUser(User referrerUser);
-
     boolean existsByReferredUser(User referredUser);
+
+    long countByReferrerUser(User referrerUser);
+
+    long countByReferrerUserAndReferralBonusGrantedTrue(User referrerUser);
+
 }

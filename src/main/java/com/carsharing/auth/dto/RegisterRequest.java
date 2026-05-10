@@ -12,6 +12,8 @@ import lombok.*;
 @Builder
 public class RegisterRequest {
 
+    private String referralCode;
+
     @NotBlank(message = "Ім'я є обов'язковим")
     @Size(max = 150, message = "Ім'я не повинно перевищувати 150 символів")
     private String fullName;

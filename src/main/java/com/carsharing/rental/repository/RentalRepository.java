@@ -20,4 +20,6 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
     List<Rental> findByStatus(RentalStatus status);
 
     List<Rental> findByStatusAndEndTimeBefore(RentalStatus status, LocalDateTime endTime);
+
+    long countByUserAndStatus(User user, RentalStatus status);
 }

@@ -8,6 +8,7 @@ import com.carsharing.common.exception.BadRequestException;
 import com.carsharing.common.exception.UnauthorizedException;
 import com.carsharing.common.security.CustomUserDetailsService;
 import com.carsharing.common.security.jwt.JwtService;
+import com.carsharing.referral.service.ReferralService;
 import com.carsharing.user.entity.Role;
 import com.carsharing.user.entity.User;
 import com.carsharing.user.entity.UserStatus;
@@ -32,6 +33,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final CustomUserDetailsService customUserDetailsService;
+    private final ReferralService referralService;
 
     @Override
     public void register(RegisterRequest request) {
@@ -62,7 +64,9 @@ public class AuthServiceImpl implements AuthService {
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        referralService.handleReferralOnRegistration(savedUser, request.getReferralCode());
     }
 
     @Override

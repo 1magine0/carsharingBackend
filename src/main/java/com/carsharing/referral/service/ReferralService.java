@@ -1,11 +1,15 @@
 package com.carsharing.referral.service;
 
-import com.carsharing.referral.dto.ApplyReferralRequest;
-import com.carsharing.referral.dto.ReferralInfoResponse;
+import com.carsharing.referral.dto.ReferralStatsResponse;
+import com.carsharing.user.entity.User;
 
 public interface ReferralService {
 
-    void applyReferralCode(ApplyReferralRequest request);
+    void handleReferralOnRegistration(User newUser, String referralCode);
 
-    ReferralInfoResponse getMyReferralInfo();
+    void handleReferralBonusAfterFirstFinishedRental(User referredUser);
+
+    boolean isReferralCodeValid(String referralCode);
+
+    ReferralStatsResponse getMyReferralStats();
 }

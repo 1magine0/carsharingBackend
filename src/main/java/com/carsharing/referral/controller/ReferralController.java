@@ -1,10 +1,8 @@
 package com.carsharing.referral.controller;
 
 import com.carsharing.common.response.ApiResponse;
-import com.carsharing.referral.dto.ApplyReferralRequest;
-import com.carsharing.referral.dto.ReferralInfoResponse;
+import com.carsharing.referral.dto.ReferralStatsResponse;
 import com.carsharing.referral.service.ReferralService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,22 +13,23 @@ public class ReferralController {
 
     private final ReferralService referralService;
 
-    @PostMapping("/apply")
-    public ApiResponse<Void> applyReferralCode(@Valid @RequestBody ApplyReferralRequest request) {
-        referralService.applyReferralCode(request);
+    @GetMapping("/validate")
+    public ApiResponse<Boolean> validateReferralCode(@RequestParam String code) {
+        boolean isValid = referralService.isReferralCodeValid(code);
 
-        return ApiResponse.<Void>builder()
+        return ApiResponse.<Boolean>builder()
                 .success(true)
-                .message("Referral code застосовано")
+                .message(isValid ? "Реферальний код дійсний" : "Реферальний код не знайдено")
+                .data(isValid)
                 .build();
     }
 
     @GetMapping("/me")
-    public ApiResponse<ReferralInfoResponse> getMyReferralInfo() {
-        return ApiResponse.<ReferralInfoResponse>builder()
+    public ApiResponse<ReferralStatsResponse> getMyReferralStats() {
+        return ApiResponse.<ReferralStatsResponse>builder()
                 .success(true)
-                .message("Referral info отримано")
-                .data(referralService.getMyReferralInfo())
+                .message("Реферальну статистику отримано")
+                .data(referralService.getMyReferralStats())
                 .build();
     }
 }

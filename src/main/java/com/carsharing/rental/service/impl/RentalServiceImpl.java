@@ -13,6 +13,7 @@ import com.carsharing.license.entity.LicenseStatus;
 import com.carsharing.license.repository.DriverLicenseRepository;
 import com.carsharing.payment.entity.PaymentStatus;
 import com.carsharing.payment.repository.PaymentRepository;
+import com.carsharing.referral.service.ReferralService;
 import com.carsharing.rental.dto.*;
 import com.carsharing.rental.entity.Rental;
 import com.carsharing.rental.entity.RentalStatus;
@@ -42,6 +43,7 @@ public class RentalServiceImpl implements RentalService {
     private final BonusTransactionRepository bonusTransactionRepository;
     private final RentalPhotoRepository rentalPhotoRepository;
     private final PaymentRepository paymentRepository;
+    private final ReferralService referralService;
 
     @Override
     public RentalPreviewResponse previewRental(RentalPreviewRequest request) {
@@ -186,6 +188,7 @@ public class RentalServiceImpl implements RentalService {
         rental.setStatus(RentalStatus.FINISHED);
         rental.setUpdatedAt(LocalDateTime.now());
         rentalRepository.save(rental);
+        referralService.handleReferralBonusAfterFirstFinishedRental(currentUser);
 
         Car car = rental.getCar();
         car.setStatus(CarStatus.AVAILABLE);
